@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 class Receiver {
 
     @RabbitListener(queues = CurrencyApplicationConfig.CURRENCY_SERVICE_CALL_QUEUE_NAME)
-    public void receiveConversionAndSendConvertedAmount(String conversionJson) {
-        String convertedAmountsAsJson = CurrencyConverter.convertAmounts(conversionJson);
+    public void receiveConversionAndSendConvertedAmount(String conversionAsJson) {
 
-        System.out.println("Sent: " + convertedAmountsAsJson);
+        String convertedAmountsAsJson = CurrencyConverter.convertAmounts(conversionAsJson);
+
+        System.out.println("RECEIVED: " + conversionAsJson);
 
         Sender.sendConvertedAmount(convertedAmountsAsJson);
     }

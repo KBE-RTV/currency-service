@@ -2,10 +2,8 @@ package com.currencyservice.service;
 
 import com.currencyservice.model.CurrencyConversion;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
@@ -13,7 +11,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class CurrencyConverter {
@@ -21,56 +18,47 @@ public class CurrencyConverter {
     private static final String CURRENCY_API_KEY = "84955e3a1e2709227eb5c3ec";
     static ObjectMapper objectMapper = new ObjectMapper();
 
-    public static String convertAmounts(String conversionJson) {
+    public static String convertAmounts(String conversionAsJson) {
 
-        ObjectNode conversionNode;
+        CurrencyConversion conversion = parseJsonStringToCurrencyConversion(conversionAsJson);
+
+        String currencyCodeFrom = getCurrencyCode(conversion.getCurrencyToConvertFrom());
+        String currencyCodeTo = getCurrencyCode(conversion.getCurrencyToConvertTo());
+
+        double conversionRate = getConversionRate(currencyCodeFrom, currencyCodeTo);
+
+        ArrayList<Double> amountList = conversion.getAmountList();
+        ArrayList<Double> convertedAmountList = new ArrayList<>();
+
+        for (double amount : amountList) {
+            double convertedAmount = amount * conversionRate;
+            convertedAmountList.add(convertedAmount);
+        }
+
+        conversion.setAmountList(convertedAmountList);
+
+        String convertedAmountsAsJson = parseCurrencyConversionToJsonString(conversion);
+
+        return convertedAmountsAsJson;
+    }
+
+    private static CurrencyConversion parseJsonStringToCurrencyConversion(String conversionAsJson) {
+        CurrencyConversion conversion;
+
         try {
-            conversionNode = objectMapper.readValue(conversionJson, ObjectNode.class);
+            conversion = objectMapper.readValue(conversionAsJson, CurrencyConversion.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
-        JsonNode arrayNode = conversionNode.get("amountList");
+        return conversion;
+    }
 
-        ObjectReader reader = objectMapper.readerFor(new TypeReference<List<Double>>() {
-        });
-
-        ArrayList<Double> amountList;
-        try {
-            amountList = reader.readValue(arrayNode);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        String currencyToConvertFrom = conversionNode.get("currencyToConvertFrom").asText();
-        String currencyToConvertTo = conversionNode.get("currencyToConvertTo").asText();
-
-        System.out.println("Received: \n"
-                + "amount: " + amountList + "\n"
-                + "currencyToConvertFrom: " + currencyToConvertFrom + "\n"
-                + "currencyToConvertTo: " + currencyToConvertTo + "\n");
-
-        String currencyFromCode = getCurrencyCode(currencyToConvertFrom);
-        String currencyToCode = getCurrencyCode(currencyToConvertTo);
-
-        System.out.println("currencyToConvertFrom: " + currencyFromCode + "\n" + "currencyToConvertTo: " + currencyToCode);
-
-        double conversionRate = getConversionRate(currencyFromCode, currencyToCode);
-
-        ArrayList<Double> convertedAmountsList = new ArrayList<>();
-
-        for (double amount : amountList
-        ) {
-            double convertedAmount = amount * conversionRate;
-            convertedAmountsList.add(convertedAmount);
-        }
-
+    private static String parseCurrencyConversionToJsonString(CurrencyConversion conversion) {
         String convertedAmountsAsJson;
 
-        CurrencyConversion convertedAmountsAsConversion = new CurrencyConversion(convertedAmountsList, currencyToConvertFrom, currencyToConvertTo);
-
         try {
-            convertedAmountsAsJson = objectMapper.writeValueAsString(convertedAmountsAsConversion);
+            convertedAmountsAsJson = objectMapper.writeValueAsString(conversion);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -94,10 +82,7 @@ public class CurrencyConverter {
         String urlString = CURRENCY_API_URL + CURRENCY_API_KEY + "/pair/" + currencyCodeToConvertFrom + "/" + currencyCodeToConvertTo;
 
         String conversionAsJson = getConversionRateAsJsonFromAPI(urlString);
-
         double conversionRate = readConversionRateFromJson(conversionAsJson);
-
-        System.out.println("conversion_rate: " + conversionRate);
 
         return conversionRate;
     }
@@ -134,6 +119,7 @@ public class CurrencyConverter {
 
     private static double readConversionRateFromJson(String conversionAsJson) {
         JsonNode conversionNode;
+
         try {
             conversionNode = new ObjectMapper().readValue(conversionAsJson, ObjectNode.class);
         } catch (JsonProcessingException e) {

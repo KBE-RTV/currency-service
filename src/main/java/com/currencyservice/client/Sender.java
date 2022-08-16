@@ -17,5 +17,7 @@ public class Sender {
     public static void sendConvertedAmount(String convertedAmountsAsJson) {
 
         rabbitTemplate.convertAndSend(CurrencyApplicationConfig.exchange.getName(), CurrencyApplicationConfig.CURRENCY_SERVICE_RESPONSE_ROUTING_KEY, convertedAmountsAsJson);
+
+        System.out.println("SENT: " + convertedAmountsAsJson + "\n");
     }
 }

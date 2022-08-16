@@ -14,7 +14,6 @@ public class CurrencyApplicationConfig {
     public static final String CURRENCY_SERVICE_CALL_QUEUE_NAME = "currency_call_queue";
     public static final String CURRENCY_SERVICE_CALL_ROUTING_KEY = "currencyService.call";
     public static final String CURRENCY_SERVICE_RESPONSE_ROUTING_KEY = "currencyService.response";
-
     public static TopicExchange exchange;
 
     @Autowired
