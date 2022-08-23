@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  currencyservice:
+    container_name: CurrencyApp
+    command: java -jar target/demo-0.0.1-SNAPSHOT.jar
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    ports:
+      - 8084:8084
