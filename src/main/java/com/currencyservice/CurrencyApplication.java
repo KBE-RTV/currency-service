@@ -13,6 +13,8 @@ public class CurrencyApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         System.out.println("Waiting..." + "\n");
+
+
         //new Scanner(System.in).nextLine();
     }
 }

@@ -1,6 +1,7 @@
 package com.currencyservice.service;
 
-import com.currencyservice.model.CurrencyConversion;
+import com.currencyservice.model.DTO.MessageDTO;
+import com.currencyservice.model.PlanetarySystem;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,55 +16,50 @@ import java.util.Scanner;
 
 public class CurrencyConverter {
     private static final String CURRENCY_API_URL = "https://v6.exchangerate-api.com/v6/";
-    private static final String CURRENCY_API_KEY = "84955e3a1e2709227eb5c3ec";
+    private static final String CURRENCY_API_KEY = "5fc0b4d419ab7e3d96135d02";
     static ObjectMapper objectMapper = new ObjectMapper();
 
-    public static String convertAmounts(String conversionAsJson) {
+    public static MessageDTO convertCurrencyForMessage(MessageDTO messageDTO)
+    {
+        ArrayList<PlanetarySystem> products = messageDTO.getProducts();
+        String currencyToConvertFrom = messageDTO.getCurrencyToConvertFrom();
+        String currencyToConvertTo = messageDTO.getCurrencyToConvertTo();
 
-        CurrencyConversion conversion = parseJsonStringToCurrencyConversion(conversionAsJson);
+        double conversionRate = getConversionRate(currencyToConvertFrom, currencyToConvertTo);
 
-        String currencyCodeFrom = getCurrencyCode(conversion.getCurrencyToConvertFrom());
-        String currencyCodeTo = getCurrencyCode(conversion.getCurrencyToConvertTo());
-
-        double conversionRate = getConversionRate(currencyCodeFrom, currencyCodeTo);
-
-        ArrayList<Double> amountList = conversion.getAmountList();
-        ArrayList<Double> convertedAmountList = new ArrayList<>();
-
-        for (double amount : amountList) {
-            double convertedAmount = amount * conversionRate;
-            convertedAmountList.add(convertedAmount);
+        for (PlanetarySystem planetarySystem : products
+        ) {
+            float convertedPrice = (float) (planetarySystem.getPrice() * conversionRate);
+            planetarySystem.setPrice(convertedPrice);
         }
 
-        conversion.setAmountList(convertedAmountList);
+        messageDTO.setProducts(products);
 
-        String convertedAmountsAsJson = parseCurrencyConversionToJsonString(conversion);
-
-        return convertedAmountsAsJson;
+        return messageDTO;
     }
 
-    private static CurrencyConversion parseJsonStringToCurrencyConversion(String conversionAsJson) {
-        CurrencyConversion conversion;
+    public static MessageDTO parseMessageToDTO(String messageAsJson) {
+        MessageDTO messageDTO;
 
         try {
-            conversion = objectMapper.readValue(conversionAsJson, CurrencyConversion.class);
+            messageDTO = objectMapper.readValue(messageAsJson, MessageDTO.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
-        return conversion;
+        return messageDTO;
     }
 
-    private static String parseCurrencyConversionToJsonString(CurrencyConversion conversion) {
-        String convertedAmountsAsJson;
+    public static String parseMessageDTOToJson(MessageDTO message) {
+        String messageAsJson;
 
         try {
-            convertedAmountsAsJson = objectMapper.writeValueAsString(conversion);
+            messageAsJson = objectMapper.writeValueAsString(message);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
-        return convertedAmountsAsJson;
+        return messageAsJson;
     }
 
     private static String getCurrencyCode(String currencyName) {
@@ -78,7 +74,11 @@ public class CurrencyConverter {
         };
     }
 
-    private static double getConversionRate(String currencyCodeToConvertFrom, String currencyCodeToConvertTo) {
+    private static double getConversionRate(String currencyToConvertFrom, String currencyToConvertTo) {
+
+        String currencyCodeToConvertFrom = getCurrencyCode(currencyToConvertFrom);
+        String currencyCodeToConvertTo = getCurrencyCode(currencyToConvertTo);
+
         String urlString = CURRENCY_API_URL + CURRENCY_API_KEY + "/pair/" + currencyCodeToConvertFrom + "/" + currencyCodeToConvertTo;
 
         String conversionAsJson = getConversionRateAsJsonFromAPI(urlString);
