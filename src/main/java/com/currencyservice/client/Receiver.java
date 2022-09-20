@@ -14,14 +14,15 @@ import java.util.ArrayList;
 class Receiver {
 
     @RabbitListener(queues = CurrencyApplicationConfig.CURRENCY_SERVICE_CALL_QUEUE_NAME)
-    public void receiveConversionAndSendConvertedAmount(String callAsJson) {
+    public String receiveConversionAndSendConvertedAmount(String callAsJson) {
         MessageDTO message = CurrencyConverter.parseMessageToDTO(callAsJson);
 
         MessageDTO responseMessage = CurrencyConverter.convertCurrencyForMessage(message);
 
         String responseMessageAsJson = CurrencyConverter.parseMessageDTOToJson(responseMessage);
 
-        Sender.sendConvertedAmount(responseMessageAsJson);
+        return responseMessageAsJson;
+        //Sender.sendConvertedAmount(responseMessageAsJson);
 
     }
 
