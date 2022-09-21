@@ -33,6 +33,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    TopicExchange exchange() {
+        return new TopicExchange(topicExchangeName);
+    }
+
+    @Bean
     Queue queue() {
         return new Queue(currencyServiceCallQueueName, false);
     }
@@ -43,18 +48,13 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    TopicExchange exchange() {
-        return new TopicExchange(topicExchangeName);
+    Binding binding() {
+        return BindingBuilder.bind(queue()).to(exchange).with(currencyServiceCallRoutingKey);
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(currencyServiceCallRoutingKey);
-    }
-
-    @Bean
-    Binding responseBinding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(currencyServiceResponseRoutingKey);
+    Binding responseBinding() {
+        return BindingBuilder.bind(responseQueue()).to(exchange).with(currencyServiceResponseRoutingKey);
     }
 
     @Bean
