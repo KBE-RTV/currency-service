@@ -1,27 +1,32 @@
-package com.currencyservice.service;
+package com.kbertv.currencyService.service;
 
-import com.currencyservice.model.DTO.MessageDTO;
-import com.currencyservice.model.PlanetarySystem;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.kbertv.currencyService.model.DTO.MessageDTO;
+import com.kbertv.currencyService.model.PlanetarySystem;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class CurrencyConverter {
-    private static final String CURRENCY_API_URL = "https://v6.exchangerate-api.com/v6/";
-    private static final String CURRENCY_API_KEY = "5fc0b4d419ab7e3d96135d02";
-    static ObjectMapper objectMapper = new ObjectMapper();
+@Service
+public class CurrencyService {
+    @Value("${currencyapi.url}")
+    private String currencyApiUrl;
+    @Value("${currencyapi.key}")
+    private String currencyApiKey;
 
-    public static MessageDTO convertCurrencyForMessage(MessageDTO messageDTO)
+    static ObjectMapper objectMapper;
+
+    public MessageDTO convertCurrencyForMessage(MessageDTO messageDTO)
     {
-        ArrayList<PlanetarySystem> products = messageDTO.getProducts();
+        ArrayList<PlanetarySystem> products = messageDTO.getPlanetarySystems();
         String currencyToConvertFrom = messageDTO.getCurrencyToConvertFrom();
         String currencyToConvertTo = messageDTO.getCurrencyToConvertTo();
 
@@ -33,13 +38,15 @@ public class CurrencyConverter {
             planetarySystem.setPrice(convertedPrice);
         }
 
-        messageDTO.setProducts(products);
+        messageDTO.setPlanetarySystems(products);
 
         return messageDTO;
     }
 
-    public static MessageDTO parseMessageToDTO(String messageAsJson) {
+    public MessageDTO parseMessageToDTO(String messageAsJson) {
         MessageDTO messageDTO;
+
+        objectMapper = new ObjectMapper();
 
         try {
             messageDTO = objectMapper.readValue(messageAsJson, MessageDTO.class);
@@ -50,8 +57,10 @@ public class CurrencyConverter {
         return messageDTO;
     }
 
-    public static String parseMessageDTOToJson(MessageDTO message) {
+    public String parseMessageDTOToJson(MessageDTO message) {
         String messageAsJson;
+
+        objectMapper = new ObjectMapper();
 
         try {
             messageAsJson = objectMapper.writeValueAsString(message);
@@ -62,7 +71,7 @@ public class CurrencyConverter {
         return messageAsJson;
     }
 
-    private static String getCurrencyCode(String currencyName) {
+    private String getCurrencyCode(String currencyName) {
 
         return switch (currencyName) {
             case "Euro" -> "EUR";
@@ -74,12 +83,12 @@ public class CurrencyConverter {
         };
     }
 
-    private static double getConversionRate(String currencyToConvertFrom, String currencyToConvertTo) {
+    private double getConversionRate(String currencyToConvertFrom, String currencyToConvertTo) {
 
         String currencyCodeToConvertFrom = getCurrencyCode(currencyToConvertFrom);
         String currencyCodeToConvertTo = getCurrencyCode(currencyToConvertTo);
 
-        String urlString = CURRENCY_API_URL + CURRENCY_API_KEY + "/pair/" + currencyCodeToConvertFrom + "/" + currencyCodeToConvertTo;
+        String urlString = currencyApiUrl + currencyApiKey + "/pair/" + currencyCodeToConvertFrom + "/" + currencyCodeToConvertTo;
 
         String conversionAsJson = getConversionRateAsJsonFromAPI(urlString);
         double conversionRate = readConversionRateFromJson(conversionAsJson);
@@ -87,7 +96,7 @@ public class CurrencyConverter {
         return conversionRate;
     }
 
-    private static String getConversionRateAsJsonFromAPI(String urlString) {
+    private String getConversionRateAsJsonFromAPI(String urlString) {
         HttpURLConnection request;
         URL url;
 
@@ -95,8 +104,6 @@ public class CurrencyConverter {
             url = new URL(urlString);
             request = (HttpURLConnection) url.openConnection();
             request.connect();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -117,8 +124,10 @@ public class CurrencyConverter {
         return conversionAsJson;
     }
 
-    private static double readConversionRateFromJson(String conversionAsJson) {
+    private double readConversionRateFromJson(String conversionAsJson) {
         JsonNode conversionNode;
+
+        objectMapper = new ObjectMapper();
 
         try {
             conversionNode = new ObjectMapper().readValue(conversionAsJson, ObjectNode.class);

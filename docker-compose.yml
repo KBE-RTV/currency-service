@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  priceservice:
+    container_name: CurrencyServiceApp
+    command: java -jar target/CurrencyServiceApp-0.0.1-SNAPSHOT.jar
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    ports:
+      - 8085:8085
+    environment:
+      - spring_rabbitmq_host=rabbitmq
+      - spring_rabbitmq_port=5672
+      - spring_rabbitmq_username=guest
+      - spring_rabbitmq_password=guest
+    networks:
+      - warehouse_common_network
+
+networks:
+  warehouse_common_network:
+    external: true

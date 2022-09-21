@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.kbe-rtv</groupId>
-    <artifactId>currency-service</artifactId>
+    <artifactId>currencyService</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>currency-service</name>
-    <description>Repo for currency-service</description>
+    <name>currencyService</name>
+    <description>repo for currencyService</description>
     <properties>
         <java.version>17</java.version>
     </properties>
