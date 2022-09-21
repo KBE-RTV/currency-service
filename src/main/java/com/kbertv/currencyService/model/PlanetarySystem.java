@@ -1,4 +1,4 @@
-package com.currencyservice.model;
+package com.kbertv.currencyService.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
