@@ -18,7 +18,7 @@ class Receiver {
     CurrencyService currencyService;
 
     @RabbitListener(queues = {"${rabbitmq.currencyService.queue.call}"})
-    public void receiveConversionAndSendConvertedAmount(String callAsJson) {
+    public String receiveConversionAndSendConvertedAmount(String callAsJson) {
         log.info("RECEIVED: " + callAsJson);
 
         MessageDTO message = currencyService.parseMessageToDTO(callAsJson);
@@ -27,8 +27,8 @@ class Receiver {
 
         String responseMessageAsJson = currencyService.parseMessageDTOToJson(responseMessage);
 
-        sender.sendConvertedAmount(responseMessageAsJson);
-
+        //sender.sendConvertedAmount(responseMessageAsJson);
+        return responseMessageAsJson;
     }
 
 }

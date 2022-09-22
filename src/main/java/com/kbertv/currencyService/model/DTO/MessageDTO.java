@@ -22,12 +22,12 @@ public class MessageDTO {
     private String currencyToConvertTo;
 
 
-    public MessageDTO(@JsonProperty("requestID") UUID callId,
-                      @JsonProperty("planetarySystems") ArrayList<PlanetarySystem> products,
+    public MessageDTO(@JsonProperty("requestID") UUID requestID,
+                      @JsonProperty("planetarySystems") ArrayList<PlanetarySystem> planetarySystems,
                       @JsonProperty("currencyToConvertFrom") String currencyToConvertFrom,
                       @JsonProperty("currencyToConvertTo") String currencyToConvertTo) {
-        this.requestID = callId;
-        this.planetarySystems = products;
+        this.requestID = requestID;
+        this.planetarySystems = planetarySystems;
         this.currencyToConvertFrom = currencyToConvertFrom;
         this.currencyToConvertTo = currencyToConvertTo;
     }
