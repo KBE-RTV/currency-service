@@ -12,7 +12,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
-public class MessageDTO {
+public class PlanetarySystemsMessageDTO {
     private UUID requestID;
 
     private ArrayList<PlanetarySystem> planetarySystems;
@@ -22,10 +22,10 @@ public class MessageDTO {
     private String currencyToConvertTo;
 
 
-    public MessageDTO(@JsonProperty("requestID") UUID requestID,
-                      @JsonProperty("planetarySystems") ArrayList<PlanetarySystem> planetarySystems,
-                      @JsonProperty("currencyToConvertFrom") String currencyToConvertFrom,
-                      @JsonProperty("currencyToConvertTo") String currencyToConvertTo) {
+    public PlanetarySystemsMessageDTO(@JsonProperty("requestID") UUID requestID,
+                                      @JsonProperty("planetarySystems") ArrayList<PlanetarySystem> planetarySystems,
+                                      @JsonProperty("currencyToConvertFrom") String currencyToConvertFrom,
+                                      @JsonProperty("currencyToConvertTo") String currencyToConvertTo) {
         this.requestID = requestID;
         this.planetarySystems = planetarySystems;
         this.currencyToConvertFrom = currencyToConvertFrom;

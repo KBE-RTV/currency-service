@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.kbertv.currencyService.model.DTO.MessageDTO;
+import com.kbertv.currencyService.model.CelestialBody;
+import com.kbertv.currencyService.model.DTO.CelestialBodiesMessageDTO;
+import com.kbertv.currencyService.model.DTO.PlanetarySystemsMessageDTO;
 import com.kbertv.currencyService.model.PlanetarySystem;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,32 +26,51 @@ public class CurrencyService {
 
     static ObjectMapper objectMapper;
 
-    public MessageDTO convertCurrencyForMessage(MessageDTO messageDTO)
+    public PlanetarySystemsMessageDTO convertCurrencyForPlanetarySystems(PlanetarySystemsMessageDTO messageDTO)
     {
-        ArrayList<PlanetarySystem> products = messageDTO.getPlanetarySystems();
+        ArrayList<PlanetarySystem> planetarySystems = messageDTO.getPlanetarySystems();
         String currencyToConvertFrom = messageDTO.getCurrencyToConvertFrom();
         String currencyToConvertTo = messageDTO.getCurrencyToConvertTo();
 
         double conversionRate = getConversionRate(currencyToConvertFrom, currencyToConvertTo);
 
-        for (PlanetarySystem planetarySystem : products
+        for (PlanetarySystem planetarySystem : planetarySystems
         ) {
             float convertedPrice = (float) (planetarySystem.getPrice() * conversionRate);
             planetarySystem.setPrice(convertedPrice);
         }
 
-        messageDTO.setPlanetarySystems(products);
+        messageDTO.setPlanetarySystems(planetarySystems);
 
         return messageDTO;
     }
 
-    public MessageDTO parseMessageToDTO(String messageAsJson) {
-        MessageDTO messageDTO;
+    public CelestialBodiesMessageDTO convertCurrencyForCelestialBodies(CelestialBodiesMessageDTO messageDTO)
+    {
+        ArrayList<CelestialBody> celestialBodies = messageDTO.getCelestialBody();
+        String currencyToConvertFrom = messageDTO.getCurrencyToConvertFrom();
+        String currencyToConvertTo = messageDTO.getCurrencyToConvertTo();
+
+        double conversionRate = getConversionRate(currencyToConvertFrom, currencyToConvertTo);
+
+        for (CelestialBody celestialBody : celestialBodies
+        ) {
+            float convertedPrice = (float) (celestialBody.getPrice() * conversionRate);
+            celestialBody.setPrice(convertedPrice);
+        }
+
+        messageDTO.setCelestialBody(celestialBodies);
+
+        return messageDTO;
+    }
+
+    public PlanetarySystemsMessageDTO parseMessageToPlanetarySystemsDTO(String messageAsJson) {
+        PlanetarySystemsMessageDTO messageDTO;
 
         objectMapper = new ObjectMapper();
 
         try {
-            messageDTO = objectMapper.readValue(messageAsJson, MessageDTO.class);
+            messageDTO = objectMapper.readValue(messageAsJson, PlanetarySystemsMessageDTO.class);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -57,7 +78,35 @@ public class CurrencyService {
         return messageDTO;
     }
 
-    public String parseMessageDTOToJson(MessageDTO message) {
+    public CelestialBodiesMessageDTO parseMessageToCelestialBodiesDTO(String messageAsJson) {
+        CelestialBodiesMessageDTO messageDTO;
+
+        objectMapper = new ObjectMapper();
+
+        try {
+            messageDTO = objectMapper.readValue(messageAsJson, CelestialBodiesMessageDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return messageDTO;
+    }
+
+    public String parseMessageCelestialBodiesDTOToJson(CelestialBodiesMessageDTO message) {
+        String messageAsJson;
+
+        objectMapper = new ObjectMapper();
+
+        try {
+            messageAsJson = objectMapper.writeValueAsString(message);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return messageAsJson;
+    }
+
+    public String parseMessagePlanetarySystemsDTOToJson(PlanetarySystemsMessageDTO message) {
         String messageAsJson;
 
         objectMapper = new ObjectMapper();

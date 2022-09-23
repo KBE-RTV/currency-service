@@ -1,6 +1,7 @@
 package com.kbertv.currencyService.client;
 
-import com.kbertv.currencyService.model.DTO.MessageDTO;
+import com.kbertv.currencyService.model.DTO.CelestialBodiesMessageDTO;
+import com.kbertv.currencyService.model.DTO.PlanetarySystemsMessageDTO;
 import com.kbertv.currencyService.service.CurrencyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -21,13 +22,23 @@ class Receiver {
     public String receiveConversionAndSendConvertedAmount(String callAsJson) {
         log.info("RECEIVED: " + callAsJson);
 
-        MessageDTO message = currencyService.parseMessageToDTO(callAsJson);
+        String responseMessageAsJson;
 
-        MessageDTO responseMessage = currencyService.convertCurrencyForMessage(message);
+        try {
+            CelestialBodiesMessageDTO message = currencyService.parseMessageToCelestialBodiesDTO(callAsJson);
 
-        String responseMessageAsJson = currencyService.parseMessageDTOToJson(responseMessage);
+            CelestialBodiesMessageDTO responseMessage = currencyService.convertCurrencyForCelestialBodies(message);
 
-        //sender.sendConvertedAmount(responseMessageAsJson);
+            responseMessageAsJson = currencyService.parseMessageCelestialBodiesDTOToJson(responseMessage);
+
+        } catch (Exception e) {
+            PlanetarySystemsMessageDTO message = currencyService.parseMessageToPlanetarySystemsDTO(callAsJson);
+
+            PlanetarySystemsMessageDTO responseMessage = currencyService.convertCurrencyForPlanetarySystems(message);
+
+            responseMessageAsJson = currencyService.parseMessagePlanetarySystemsDTOToJson(responseMessage);
+
+        }
         return responseMessageAsJson;
     }
 
