@@ -20,7 +20,6 @@ public class PlanetarySystem implements Serializable {
     private ArrayList<CelestialBody> celestialBodies;
     private float price;
 
-
     public PlanetarySystem(@JsonProperty("id") UUID id,
                            @JsonProperty("name") String name,
                            @JsonProperty("owner") String owner,

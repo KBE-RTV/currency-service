@@ -1,4 +1,4 @@
-package com.kbertv.currencyService.model.DTO;
+package com.kbertv.currencyService.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kbertv.currencyService.model.PlanetarySystem;
