@@ -40,6 +40,7 @@ public class CurrencyService {
     public PlanetarySystemsMessageDTO convertCurrencyForPlanetarySystems(PlanetarySystemsMessageDTO planetarySystemsMessageDTO)
     {
         ArrayList<PlanetarySystem> planetarySystems = planetarySystemsMessageDTO.getPlanetarySystems();
+
         String currencyToConvertFrom = planetarySystemsMessageDTO.getCurrencyToConvertFrom();
         String currencyToConvertTo = planetarySystemsMessageDTO.getCurrencyToConvertTo();
 
@@ -47,9 +48,18 @@ public class CurrencyService {
 
         for (PlanetarySystem planetarySystem : planetarySystems
         ) {
+            ArrayList<CelestialBody> celestialBodies = planetarySystem.getCelestialBodies();
+
             float convertedPrice = (float) (planetarySystem.getPrice() * conversionRate);
             float convertedPriceWithTwoDigits = convertToFloatWithTwoDecimals(convertedPrice);
             planetarySystem.setPrice(convertedPriceWithTwoDigits);
+
+            for (CelestialBody celestialBody: celestialBodies
+                 ) {
+                convertedPrice = (float) (celestialBody.getPrice() * conversionRate);
+                convertedPriceWithTwoDigits = convertToFloatWithTwoDecimals(convertedPrice);
+                celestialBody.setPrice(convertedPriceWithTwoDigits);
+            }
         }
 
         planetarySystemsMessageDTO.setPlanetarySystems(planetarySystems);
