@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  priceservice:
+  currencyservice:
     container_name: CurrencyServiceApp
     command: java -jar target/demo-0.0.1-SNAPSHOT.jar
     build:
