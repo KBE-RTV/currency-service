@@ -8,6 +8,7 @@ import com.kbertv.currencyService.model.CelestialBody;
 import com.kbertv.currencyService.model.PlanetarySystem;
 import com.kbertv.currencyService.model.dto.CelestialBodiesMessageDTO;
 import com.kbertv.currencyService.model.dto.PlanetarySystemsMessageDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ import java.util.Scanner;
  * class for converting currencies and parsing json
  */
 @Service
+@Slf4j
 public class CurrencyService {
     @Value("${currencyapi.url}")
     private String currencyApiUrl;
@@ -181,13 +183,14 @@ public class CurrencyService {
 
         objectMapper = new ObjectMapper();
 
+        double conversionRate = 1;
+
         try {
             conversionNode = new ObjectMapper().readValue(conversionRateAsJson, ObjectNode.class);
+            conversionRate = conversionNode.path("conversion_rate").asDouble();
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.info("Invalid currency to convert to");
         }
-
-        double conversionRate = conversionNode.path("conversion_rate").asDouble();
 
         return conversionRate;
     }
