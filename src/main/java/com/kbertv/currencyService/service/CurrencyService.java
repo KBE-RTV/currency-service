@@ -12,8 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -45,7 +48,8 @@ public class CurrencyService {
         for (PlanetarySystem planetarySystem : planetarySystems
         ) {
             float convertedPrice = (float) (planetarySystem.getPrice() * conversionRate);
-            planetarySystem.setPrice(convertedPrice);
+            float convertedPriceWithTwoDigits = convertToFloatWithTwoDecimals(convertedPrice);
+            planetarySystem.setPrice(convertedPriceWithTwoDigits);
         }
 
         planetarySystemsMessageDTO.setPlanetarySystems(planetarySystems);
@@ -69,7 +73,8 @@ public class CurrencyService {
         for (CelestialBody celestialBody : celestialBodies
         ) {
             float convertedPrice = (float) (celestialBody.getPrice() * conversionRate);
-            celestialBody.setPrice(convertedPrice);
+            float convertedPriceWithTwoDigits = convertToFloatWithTwoDecimals(convertedPrice);
+            celestialBody.setPrice(convertedPriceWithTwoDigits);
         }
 
         celestialBodiesMessageDTO.setCelestialBody(celestialBodies);
@@ -111,6 +116,20 @@ public class CurrencyService {
         double conversionRate = readConversionRateFromJson(conversionRateAsJson);
 
         return conversionRate;
+    }
+
+    /**
+     * returns a float number with two digits
+     * @param number
+     * @return converted number with two digits
+     */
+    public float convertToFloatWithTwoDecimals(float number)
+    {
+        BigDecimal numberWithTwoDigitsAsBigDecimal = new BigDecimal(number).setScale(2, RoundingMode.HALF_UP);
+
+        float numberWithTwoDigitsAsFloat = numberWithTwoDigitsAsBigDecimal.floatValue();
+
+        return numberWithTwoDigitsAsFloat;
     }
 
     /**
