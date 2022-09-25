@@ -8,6 +8,9 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * class for receiving messages on rabbitMQ queues and replying to them
+ */
 @Component
 @Slf4j
 class RabbitMQClient {
@@ -16,22 +19,22 @@ class RabbitMQClient {
     CurrencyService currencyService;
 
     @RabbitListener(queues = {"${rabbitmq.currencyService.queue.call}"})
-    public String receiveConversionAndSendConvertedAmount(String callAsJson) {
-        log.info("RECEIVED: " + callAsJson);
+    public String receiveConversionAndSendConvertedAmount(String messageAsJson) {
+        log.info("RECEIVED: " + messageAsJson);
 
         String responseMessageAsJson;
 
         try {
-            CelestialBodiesMessageDTO message = currencyService.parseMessageToCelestialBodiesDTO(callAsJson);
+            CelestialBodiesMessageDTO celestialBodiesMessageDTO = currencyService.parseMessageToCelestialBodiesDTO(messageAsJson);
 
-            CelestialBodiesMessageDTO responseMessageDTO = currencyService.convertCurrencyForCelestialBodies(message);
+            CelestialBodiesMessageDTO responseMessageDTO = currencyService.convertCurrencyForCelestialBodies(celestialBodiesMessageDTO);
 
             responseMessageAsJson = currencyService.parseMessageCelestialBodiesDTOToJson(responseMessageDTO);
 
         } catch (Exception e) {
-            PlanetarySystemsMessageDTO message = currencyService.parseMessageToPlanetarySystemsDTO(callAsJson);
+            PlanetarySystemsMessageDTO planetarySystemsMessageDTO = currencyService.parseMessageToPlanetarySystemsDTO(messageAsJson);
 
-            PlanetarySystemsMessageDTO responseMessageDTO = currencyService.convertCurrencyForPlanetarySystems(message);
+            PlanetarySystemsMessageDTO responseMessageDTO = currencyService.convertCurrencyForPlanetarySystems(planetarySystemsMessageDTO);
 
             responseMessageAsJson = currencyService.parseMessagePlanetarySystemsDTOToJson(responseMessageDTO);
 

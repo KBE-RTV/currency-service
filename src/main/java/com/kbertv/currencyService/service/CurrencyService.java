@@ -17,6 +17,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * class for converting currencies and parsing json
+ */
 @Service
 public class CurrencyService {
     @Value("${currencyapi.url}")
